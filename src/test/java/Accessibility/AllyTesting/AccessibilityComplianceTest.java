@@ -11,7 +11,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
+import java.io.*;
+import java.io.PrintWriter;
 import java.util.List;
+import java.util.logging.FileHandler;
 
 public class AccessibilityComplianceTest {
     static WebDriver driver;
@@ -43,27 +46,39 @@ public class AccessibilityComplianceTest {
         SoftAssert sf = new SoftAssert();
         AxeBuilder axeBuilder = new AxeBuilder();
 
-        System.out.println("*********************************");
-        System.out.println("******** START 508 TEST *********");
-        System.out.println("*********************************");
+        log("*********************************");
+        log("******** START 508 TEST *********");
+        log("*********************************");
 
         Results results = axeBuilder.analyze(driver);
         if (!results.violationFree()) {
-            System.out.println("Test came back with at least: " + results.getViolations().size() + ": 508 violation/s");
+            log("Test came back with at least: " + results.getViolations().size() + ": 508 violation/s");
             List<Rule> violations = results.getViolations();
-            System.out.println(violations);
-            System.out.println("Incomplete list size: " + results.getIncomplete().size());
+            log(violations.toString());
+            log("Incomplete list size: " + results.getIncomplete().size());
             for (Rule r : results.getIncomplete()) {
-                System.out.println("Description = " + r.getDescription());
-                System.out.println("Number of nodes = " + r.getNodes().size());
+                log("Description = " + r.getDescription());
+                log("Number of nodes = " + r.getNodes().size());
             }
-            System.out.println("*********************************");
-            System.out.println("******** END 508 TEST *********");
-            System.out.println("*********************************");
+            log("*********************************");
+            log("******** END 508 TEST *********");
+            log("*********************************");
             Assert.fail();
         }
     }
 
+    public static void log(String message){
+        String fileName = "508_logs.txt";
+
+        try{
+            PrintWriter out = new PrintWriter(new FileWriter(fileName, true),true);
+            out.println(message);
+            out.close();
+        }catch(IOException e){
+            e.printStackTrace();
+            System.out.println("Error during the reading or writing process of the log files");
+        }
+    }
     @Test
     public void test508Target() {
         String accessUrl;
