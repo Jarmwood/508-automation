@@ -10,27 +10,35 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-
 import java.io.*;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.logging.FileHandler;
 
+
+/**
+ * Class handles the validation of an application's page to assess for violations and compliance.
+ */
 public class AccessibilityComplianceTest {
     static WebDriver driver;
     String url;
 
+    /**
+     * Method to test the full individual web page (not the full website).
+     * @param targetUrl: string input of desired url.
+     * Example: "https://www.target.com"
+     */
     public void pageUnder508Test(String targetUrl) {
         url = targetUrl;
-
         WebDriverManager.chromedriver().clearDriverCache().setup();
         driver = new ChromeDriver();
         driver.get(url);
         driver.manage().window().maximize();
-
         checkAccessibility();
     }
 
+    /**
+     * Method to close the driver instance and clean the testing environment.
+     */
     @AfterMethod
     public void cleanBrowser() {
         if (driver != null) {
@@ -42,6 +50,11 @@ public class AccessibilityComplianceTest {
         }
     }
 
+    /**
+     * This method uses the Axe Deque dependency to verify 508 compliance on any given page.
+     * Once the page is analyzed, if no errors are present on the page then the test
+     * will pass. In the event there are failures then it will collect all the errors and returns a list of them to be viewed.
+     */
     public static void checkAccessibility() {
         SoftAssert sf = new SoftAssert();
         AxeBuilder axeBuilder = new AxeBuilder();
@@ -67,9 +80,12 @@ public class AccessibilityComplianceTest {
         }
     }
 
+    /**
+     * Method to create custom log files and output them to a .txt file
+     * @param message : string log input
+     */
     public static void log(String message){
         String fileName = "508_logs.txt";
-
         try{
             PrintWriter out = new PrintWriter(new FileWriter(fileName, true),true);
             out.println(message);
@@ -79,6 +95,7 @@ public class AccessibilityComplianceTest {
             System.out.println("Error during the reading or writing process of the log files");
         }
     }
+
     @Test
     public void test508Target() {
         String accessUrl;
